@@ -212,6 +212,15 @@ function selectWeek(w) {
   render(S.page);
 }
 
+function resetDefaultPlans() {
+  if (!confirm('Recharger les semaines par defaut ? Le planning actuel, les extras et les exclusions de stock seront remplaces.')) return;
+  S.plans = clone(WEEKS_DEFAULT);
+  S.checks = {};
+  save();
+  render(S.page);
+  alert('Semaines par defaut rechargees.');
+}
+
 function renderHome() {
   renderWS('ws-home');
   const plan = S.plans[S.week];
