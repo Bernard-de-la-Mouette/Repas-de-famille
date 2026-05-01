@@ -1,0 +1,19 @@
+{
+  "name": "Repas Famille",
+  "short_name": "Repas",
+  "description": "Planning repas, recettes, courses et budget familial.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fdf8f2",
+  "theme_color": "#c4622d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

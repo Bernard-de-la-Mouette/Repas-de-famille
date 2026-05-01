@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#c4622d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Repas Famille">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Repas Famille</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="nav">
+    <button class="nav-item active" id="nav-home" onclick="navigate('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Accueil
+    </button>
+    <button class="nav-item" id="nav-planning" onclick="navigate('planning')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Planning
+    </button>
+    <button class="nav-item" id="nav-courses" onclick="navigate('courses')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="9" cy="21" r="1"/>
+        <circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.98-1.69l1.57-9.27H6"/>
+      </svg>
+      Courses
+    </button>
+    <button class="nav-item" id="nav-recettes" onclick="navigate('recettes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+      </svg>
+      Recettes
+    </button>
+  </nav>
+
+  <main>
+    <section class="page active" id="page-home">
+      <div class="home-header">
+        <h1>Repas Famille</h1>
+        <p>Planification simple, equilibree, economique</p>
+        <div class="family-badges">
+          <span class="family-badge">2 adultes + 1 enfant 2 ans</span>
+          <span class="family-badge">environ 2,25 portions</span>
+        </div>
+      </div>
+      <div class="content">
+        <div class="week-selector" id="ws-home"></div>
+        <div id="home-summary"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-planning">
+      <div class="page-header">
+        <h1>Planning</h1>
+        <p id="plan-subtitle"></p>
+      </div>
+      <div class="content">
+        <div class="portions-bar">
+          <label>Portions</label>
+          <div class="portions-ctrl">
+            <button class="ptn-btn" onclick="changePtn(-0.25)">-</button>
+            <span class="ptn-val" id="ptn-display">2,25</span>
+            <button class="ptn-btn" onclick="changePtn(0.25)">+</button>
+          </div>
+        </div>
+        <div class="week-selector" id="ws-plan"></div>
+        <div class="table-wrap">
+          <table class="plan-table" id="plan-table"></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-courses">
+      <div class="page-header">
+        <h1>Courses</h1>
+        <p id="courses-subtitle"></p>
+      </div>
+      <div class="content">
+        <div id="budget-wrap"></div>
+        <div class="actions-bar">
+          <button class="btn btn-outline" onclick="resetChecks()">Reinitialiser les cases</button>
+          <button class="btn btn-outline" onclick="navigate('planning')">Modifier le planning</button>
+          <button class="btn btn-outline" onclick="exportData()">Exporter</button>
+          <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">Importer</button>
+          <input id="import-file" type="file" accept="application/json,.json" style="display:none" onchange="importData(event)">
+        </div>
+        <div class="week-selector" id="ws-courses"></div>
+        <div id="shop-list"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-recettes">
+      <div class="page-header">
+        <h1>Recettes</h1>
+        <p>Toutes nos recettes familiales</p>
+      </div>
+      <div class="content">
+        <div class="actions-bar recipes-toolbar">
+          <button class="btn btn-outline subtab-btn" id="tab-recipes-list" onclick="showRecipePanel('list')">Recettes</button>
+          <button class="btn btn-outline subtab-btn" id="tab-recipe-form" onclick="showRecipePanel('recipe')">+ Recette</button>
+          <button class="btn btn-outline subtab-btn" id="tab-ingredients" onclick="showRecipePanel('ingredients')">Ingredients</button>
+        </div>
+
+        <div class="recipe-panel" id="panel-ingredients">
+          <div class="card-title" id="ingredient-form-title">Base ingredients</div>
+          <div class="form-grid">
+            <div class="form-row">
+              <div>
+                <label class="field-label" for="ingredient-name">Nom</label>
+                <input class="field" id="ingredient-name" list="ingredient-names" placeholder="Ex: Pates">
+                <datalist id="ingredient-names"></datalist>
+              </div>
+              <div>
+                <label class="field-label" for="ingredient-category">Categorie</label>
+                <select class="field" id="ingredient-category">
+                  <option value="viandes">Viandes / Poissons / Oeufs</option>
+                  <option value="feculents">Feculents</option>
+                  <option value="legumes">Legumes frais</option>
+                  <option value="surgeles">Surgeles</option>
+                  <option value="epicerie">Epicerie</option>
+                  <option value="vegetal">Produits vegetaux</option>
+                  <option value="autres">Autres</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label class="field-label" for="ingredient-unit">Unite prix</label>
+                <select class="field" id="ingredient-unit">
+                  <option value="g">g (prix au kg)</option>
+                  <option value="ml">ml (prix au L)</option>
+                  <option value="piece">piece</option>
+                  <option value="pieces">pieces</option>
+                  <option value="tranches">tranches</option>
+                  <option value="cs">cs</option>
+                  <option value="cc">cc</option>
+                  <option value="cube">cube</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label" for="ingredient-price">Prix moyen (EUR)</label>
+                <input class="field" id="ingredient-price" type="number" min="0" step="0.01" placeholder="2.40">
+              </div>
+            </div>
+            <div class="form-help">Pour g/ml, indique le prix au kg ou au litre. Pour piece, indique le prix d'une unite.</div>
+            <div class="actions-bar" style="margin-bottom:0">
+              <button class="btn btn-outline" id="ingredient-save-btn" onclick="saveIngredientForm()">Enregistrer ingredient</button>
+              <button class="btn btn-outline" id="ingredient-cancel-btn" onclick="resetIngredientForm()" style="display:none">Annuler</button>
+            </div>
+          </div>
+          <div id="ingredient-list"></div>
+        </div>
+
+        <div class="recipe-panel" id="panel-recipe-form">
+          <div class="card-title" id="recipe-form-title">Ajouter une recette</div>
+          <div class="form-grid">
+            <div class="form-row">
+              <div>
+                <label class="field-label" for="new-recipe-name">Nom</label>
+                <input class="field" id="new-recipe-name" placeholder="Ex: Chili doux">
+              </div>
+              <div>
+                <label class="field-label" for="new-recipe-base">Portions de base</label>
+                <input class="field" id="new-recipe-base" type="number" min="1" step="0.25" value="4">
+              </div>
+            </div>
+            <div>
+              <label class="field-label" for="new-recipe-price">Budget base (EUR)</label>
+              <input class="field" id="new-recipe-price" type="number" min="0" step="0.10" placeholder="8">
+            </div>
+            <div>
+              <label class="field-label" for="new-recipe-ingredients">Ingredients</label>
+              <div class="form-row">
+                <select class="field" id="recipe-ingredient-pick"></select>
+                <input class="field" id="recipe-ingredient-qty" type="number" min="0" step="0.1" placeholder="Quantite">
+              </div>
+              <div class="form-row">
+                <select class="field" id="recipe-ingredient-unit">
+                  <option value="">Unite auto</option>
+                  <option value="g">g</option>
+                  <option value="ml">ml</option>
+                  <option value="piece">piece</option>
+                  <option value="pieces">pieces</option>
+                  <option value="tranches">tranches</option>
+                  <option value="cs">cs</option>
+                  <option value="cc">cc</option>
+                  <option value="cube">cube</option>
+                </select>
+                <button class="btn btn-outline" onclick="addIngredientLineToRecipe()">Ajouter ingredient</button>
+              </div>
+              <textarea class="field" id="new-recipe-ingredients" placeholder="Pates | 350 | g | feculents | 1.00&#10;Thon | 280 | g | viandes | 3.00"></textarea>
+              <div class="form-help">Une ligne par ingredient : nom | quantite | unite. La categorie et le prix viennent de la base si le nom existe. Tu peux encore forcer : nom | quantite | unite | categorie | prix.</div>
+            </div>
+            <div>
+              <label class="field-label" for="new-recipe-steps">Preparation</label>
+              <textarea class="field" id="new-recipe-steps" placeholder="Une etape par ligne"></textarea>
+            </div>
+            <div class="actions-bar" style="margin-bottom:0">
+              <button class="btn btn-outline" id="recipe-save-btn" onclick="saveRecipeForm()">+ Ajouter la recette</button>
+              <button class="btn btn-outline" id="recipe-cancel-btn" onclick="resetRecipeForm()" style="display:none">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-recipes-list">
+          <div class="card recipe-filter-card">
+            <div class="form-grid">
+              <div class="form-row">
+                <input class="field" id="recipe-filter-text" placeholder="Rechercher un ingredient" oninput="renderRecettes()">
+                <select class="field" id="recipe-filter-ingredient" onchange="renderRecettes()">
+                  <option value="">Tous les ingredients</option>
+                </select>
+              </div>
+              <button class="btn btn-outline" onclick="clearRecipeFilters()">Effacer le filtre</button>
+            </div>
+          </div>
+          <div class="recipes-grid" id="recipes-grid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="recipe-overlay">
+    <div class="sheet" id="recipe-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div style="flex:1">
+          <span class="modal-emoji" id="modal-emoji"></span>
+          <h2 class="modal-title" id="modal-title"></h2>
+        </div>
+        <button class="sheet-close" onclick="closeRecipe()">x</button>
+      </div>
+      <div class="sheet-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="edit-overlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 class="modal-title" id="edit-title" style="flex:1"></h2>
+        <button class="sheet-close" onclick="closeEdit()">x</button>
+      </div>
+      <div class="sheet-body">
+        <div class="portion-edit">
+          <label for="edit-portions">Portions pour ce repas</label>
+          <input class="field" id="edit-portions" type="number" min="0.5" step="0.25">
+        </div>
+        <div class="picker-grid" id="picker-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="exclude-overlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 class="modal-title" id="exclude-title" style="flex:1"></h2>
+        <button class="sheet-close" onclick="closeExclude()">x</button>
+      </div>
+      <div class="sheet-body">
+        <div id="exclude-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>
